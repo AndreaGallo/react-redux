@@ -5,7 +5,8 @@
     "plugin:import/warnings"
   ],
   "plugins": [
-    "react"
+    "react",
+    "class-property"
   ],
   "parserOptions": {
     "ecmaVersion": 6,
@@ -64,6 +65,7 @@
     "react/require-extension": 1,
     "react/self-closing-comp": 1,
     "react/sort-comp": 1,
-    "react/wrap-multilines": 1
+    "react/wrap-multilines": 1,
+    "class-property/rule-name": 2
   }
 }
