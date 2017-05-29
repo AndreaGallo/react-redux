@@ -11,34 +11,79 @@ class ManageCoursePage extends React.Component {
     this.state = {
       course: props.course,
       errors: {}
+    };
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if(this.state.course.id !== nextProps.course.id) {
+      this.setState({course: Object.assign({}, nextProps.course)});
     }
   }
 
+  saveCourse = (event) => {
+    event.preventDefault();
+    this.props.actions.saveCourse(this.state.course);
+    this.context.router.push('/courses');
+  };
+
+  updateCourseState = (event) => {
+    const field = event.target.name;
+    let course = this.state.course;
+    course[field] = event.target.value;
+    return this.setState({
+      course: course
+    });
+  };
+
   render() {
     return(
-        <CourseForm course={this.state.course}
+        <CourseForm onChange={this.updateCourseState}
+                    onSave={this.saveCourse}
+                    course={this.state.course}
                     errors={this.state.errors}
-                    allAuthors={[]}/>
+                    allAuthors={this.props.authors}/>
     );
   }
 }
 
 ManageCoursePage.propTypes = {
-
+  course: PropTypes.object.isRequired,
+  authors: PropTypes.array.isRequired
 };
 
+ManageCoursePage.contextTypes = {
+  router: PropTypes.object
+};
+
+function getCourseById(courses, courseId) {
+  const course = courses.filter(course => course.id === courseId);
+  return course.length > 0? course[0] : null;
+}
+
 function mapStateToProps(state, ownProps) {
-  let course = {
-    id: "react-flux-building-applications",
-    title: "Building Applications in React and Flux",
-    watchHref: "http://www.pluralsight.com/courses/react-flux-building-applications",
-    authorId: "cory-house",
-    length: "5:08",
-    category: "JavaScript"
+  let courseId = ownProps.params.id;
+
+  let newCourse = {
+    id: "",
+    title: "",
+    watchHref: "",
+    authorId: "",
+    length: "",
+    category: ""
   };
 
+  let course = courseId && state.courses.length > 0? getCourseById(state.courses, courseId) : newCourse;
+  
+  const authorsFormattedForDropdown = state.authors.map(author => {
+    return {
+      value: author.id,
+      text: author.firstName + ' ' + author.lastName
+    };
+  });
+
   return {
-    course: course
+    course: course,
+    authors: authorsFormattedForDropdown
   };
 }
 
