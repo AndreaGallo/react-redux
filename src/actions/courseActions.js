@@ -28,7 +28,7 @@ export function saveCourse(course) {
     //getState para obtener partes del state sin necesidad de pasarlo como argumento
     return courseApi.saveCourse(course).then(savedCourse => {
       course.id ? dispatch(updateCourseSuccess(savedCourse)) :
-      dispatch(createCourseSuccess(savedCourse)); 
+      dispatch(createCourseSuccess(savedCourse));
     }).catch(error => {
       throw(error);
     });

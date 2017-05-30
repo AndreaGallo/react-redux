@@ -3,6 +3,7 @@ import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import * as courseActions from '../../actions/courseActions';
 import CourseForm from './CourseForm';
+import toastr from 'toastr';
 
 
 class ManageCoursePage extends React.Component {
@@ -10,7 +11,8 @@ class ManageCoursePage extends React.Component {
     super(props, context);
     this.state = {
       course: props.course,
-      errors: {}
+      errors: {},
+      saving: false
     };
   }
 
@@ -22,9 +24,19 @@ class ManageCoursePage extends React.Component {
 
   saveCourse = (event) => {
     event.preventDefault();
-    this.props.actions.saveCourse(this.state.course);
-    this.context.router.push('/courses');
+    this.setState({ saving: true });
+    let promise = this.props.actions.saveCourse(this.state.course);
+
+    promise.then(() => {
+      this.setState({ saving: false });
+      toastr.success('Course Saved!');
+      this.context.router.push('/courses');
+    }).catch((error) => {
+          this.setState({ saving: false });
+          toastr.error(error);
+    });
   };
+
 
   updateCourseState = (event) => {
     const field = event.target.name;
@@ -41,7 +53,9 @@ class ManageCoursePage extends React.Component {
                     onSave={this.saveCourse}
                     course={this.state.course}
                     errors={this.state.errors}
-                    allAuthors={this.props.authors}/>
+                    allAuthors={this.props.authors}
+                    saving={this.state.saving}
+                    />
     );
   }
 }
@@ -73,7 +87,7 @@ function mapStateToProps(state, ownProps) {
   };
 
   let course = courseId && state.courses.length > 0? getCourseById(state.courses, courseId) : newCourse;
-  
+
   const authorsFormattedForDropdown = state.authors.map(author => {
     return {
       value: author.id,
